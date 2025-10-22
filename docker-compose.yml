@@ -1,0 +1,10 @@
+services:
+    package:
+        build: .
+        container_name: ptouch_print
+        volumes:
+            - .:/app
+        command: >
+          sh -c "git config --global --add safe.directory /app &&
+                 bash ./package.sh"
+        working_dir: /app

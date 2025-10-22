@@ -1,0 +1,58 @@
+stages:
+  - build
+  - release
+
+variables:
+    OUTDIR: 'out'
+
+build_job:
+  stage: build
+  image: bitnami/minideb:trixie@sha256:cc9c926a9613976b1ab098f3d2eb131d1e218bdcd38ac558fbe4a74f17a94893
+  variables:
+    GO_BUILD_NAME: $CI_PROJECT_NAME
+  before_script:
+    - echo 'DEBIAN_FRONTEND=noninteractive' >> /etc/environment
+    - apt update && apt install -y checkinstall libusb-1.0-0-dev libgd-dev git cmake make gcc gettext printer-driver-ptouch
+    - mkdir -p /etc/udev/rules.d
+  script:
+    - bash ./package.sh
+    - mkdir -p ${OUTDIR}
+    - cp *.tar.gz ${OUTDIR}/
+    - cp *.deb ${OUTDIR}/
+
+  artifacts:
+    paths:
+      - ${OUTDIR}/
+  only:
+    - tags
+  except:
+    - branches
+
+release_job:
+  stage: release
+  image: 'registry.gitlab.com/gitlab-org/release-cli:latest'
+  variables:
+    PACKAGE_REGISTRY_URL: '$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/$CI_PROJECT_NAME'
+  before_script:
+    - apk add curl
+  script:
+    - cd $OUTDIR
+    - find * -type f -exec sha256sum {} >> sha256sums.txt \;
+    - |
+      asset_args=""
+      for FILE in *; do
+        echo "Uploading $FILE to the package registry"
+        URL=${PACKAGE_REGISTRY_URL}/${CI_COMMIT_TAG}/${FILE}
+        curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file ${FILE} ${URL}
+        asset_info='{"name":"'$FILE'","url":"'$URL'"}'
+        asset_args=$asset_args" --assets-link "$asset_info
+      done
+    - |
+      release-cli create \
+        --name "Release $CI_COMMIT_TAG" \
+        --tag-name $CI_COMMIT_TAG \
+        ${asset_args}
+  only:
+    - tags
+  except:
+    - branches

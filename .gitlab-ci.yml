@@ -37,7 +37,6 @@ release_job:
     - apk add curl
   script:
     - cd $OUTDIR
-    - find * -type f -exec sha256sum {} >> sha256sums.txt \;
     - |
       asset_args=""
       for FILE in *; do

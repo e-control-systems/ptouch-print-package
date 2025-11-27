@@ -1,10 +1,12 @@
 services:
     package:
-        build: .
-        container_name: ptouch_print
+        build: 
+            context: "."
+            args:
+              - "UID=${UID:-1000}"
+              - "GID=${GID:-1000}"
+        container_name: ptouch_print_packaging
         volumes:
             - .:/app
-        command: >
-          sh -c "git config --global --add safe.directory /app &&
-                 bash ./package.sh"
+        command: "bash ./package.sh"
         working_dir: /app

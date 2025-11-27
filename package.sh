@@ -104,7 +104,7 @@ package_deb() {
     
     exclude="$(realpath ../po/ptouch.pot)"
     echo "${pkgdesc}" > description-pak
-    checkinstall -D -y \
+    sudo checkinstall -D -y \
     --install=yes \
     --fstrans=no \
     --pkgname=${pkgname} \
@@ -121,24 +121,21 @@ package_deb() {
     --delspec=yes \
     --deldoc=yes \
     --exclude="${exclude}"
-    apt purge --auto-remove ptouch-print -y
+    sudo apt purge --auto-remove ptouch-print -y
 
-    mv "../${pkgname}_${pkgver}-${pkgrel}_${arch}.deb" "../${output_deb}"
+    cp "../${pkgname}_${pkgver}-${pkgrel}_${arch}.deb" "../${output_deb}"
 }
 
 postpackage() {
-    mv ${src_dir}/${output_archive} .
-    chmod a+rw ${output_archive}
+    cp ${src_dir}/${output_archive} .
+    cp "${src_dir}/${output_deb}" .
 
-    mv "${src_dir}/${output_deb}" .
-    chmod a+rw "${output_deb}"
-
-    rm -rf "${src_dir}"
+    sudo rm -rf "${src_dir}"
 }
 
 
 main(){
-    apt install -y ${makedepends[*]}
+    sudo apt install -y ${makedepends[*]}
 
     (prepare)
     pkgver=$(version)

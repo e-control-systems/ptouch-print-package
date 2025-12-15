@@ -7,12 +7,12 @@ variables:
 
 build_job:
   stage: build
-  image: bitnami/minideb:trixie@sha256:cc9c926a9613976b1ab098f3d2eb131d1e218bdcd38ac558fbe4a74f17a94893
+  image: debian:trixie-slim
   variables:
     GO_BUILD_NAME: $CI_PROJECT_NAME
   before_script:
     - echo 'DEBIAN_FRONTEND=noninteractive' >> /etc/environment
-    - apt update && apt install -y checkinstall libusb-1.0-0-dev libgd-dev git cmake make gcc gettext printer-driver-ptouch
+    - apt update && apt install -y checkinstall libusb-1.0-0-dev libgd-dev git cmake make gcc gettext printer-driver-ptouch sudo
     - mkdir -p /etc/udev/rules.d
   script:
     - bash ./package.sh

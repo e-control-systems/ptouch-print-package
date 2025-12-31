@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 E-Control Systems <info@econtrolsystems.com>
+#
+# SPDX-License-Identifier: GPL-3.0-only
+
 FROM bitnami/minideb:trixie@sha256:cc9c926a9613976b1ab098f3d2eb131d1e218bdcd38ac558fbe4a74f17a94893
 ARG UID=1000
 ARG GID=1000
